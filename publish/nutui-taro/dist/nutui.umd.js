@@ -3824,12 +3824,18 @@ var __async = (__this, __arguments, generator) => {
             state.value.width = rect.width;
             state.value.height = rect.height;
             let clientX, clientY;
-            if (Taro.getEnv() === Taro.ENV_TYPE.WEB) {
-              clientX = event.clientX;
-              clientY = event.clientY;
-            } else {
-              clientX = event.touches[0].clientX;
-              clientY = event.touches[0].clientY;
+            switch (Taro.getEnv()) {
+              case Taro.ENV_TYPE.WEB:
+                clientX = event.clientX;
+                clientY = event.clientY;
+                break;
+              case Taro.ENV_TYPE.SWAN:
+                clientX = event.changedTouches[0].clientX;
+                clientY = event.changedTouches[0].clientY;
+                break;
+              default:
+                clientX = event.touches[0].clientX;
+                clientY = event.touches[0].clientY;
             }
             let delta = clientX - rect.left;
             let total = rect.width;
@@ -7146,6 +7152,9 @@ var __async = (__this, __arguments, generator) => {
           return false;
         }
       };
+      const isCurrPick = (index) => {
+        return index == state.currIndex;
+      };
       const setTransform = (translateY = 0, type, time = DEFAULT_DURATION, deg) => {
         if (type === "end") {
           touchTime.value = time;
@@ -7225,6 +7234,7 @@ var __async = (__this, __arguments, generator) => {
       return __spreadProps(__spreadValues(__spreadValues({}, vue.toRefs(state)), vue.toRefs(props)), {
         setRollerStyle,
         isHidden,
+        isCurrPick,
         roller,
         onTouchStart,
         onTouchMove,
@@ -7268,7 +7278,8 @@ var __async = (__this, __arguments, generator) => {
             item && item[_ctx.fieldNames.text] && !_ctx.threeDimensional ? (vue.openBlock(), vue.createElementBlock("view", {
               key: 1,
               class: vue.normalizeClass(["nut-picker-roller-item-tile", {
-                [item[_ctx.fieldNames.className]]: item[_ctx.fieldNames.className]
+                [item[_ctx.fieldNames.className]]: item[_ctx.fieldNames.className],
+                "nut-picker-roller-item-selected": _ctx.isCurrPick(index + 1)
               }]),
               style: vue.normalizeStyle({ height: _ctx.pxCheck(_ctx.optionHeight), lineHeight: _ctx.pxCheck(_ctx.optionHeight) })
             }, vue.toDisplayString(item[_ctx.fieldNames.text]), 7)) : vue.createCommentVNode("", true)
@@ -19673,7 +19684,7 @@ var __async = (__this, __arguments, generator) => {
       }
     });
   }
-  const version = "4.3.10";
+  const version = "4.3.11";
   const taro_build = { install, version, Locale };
   exports2.ActionSheet = ActionSheet;
   exports2.Address = Address;
